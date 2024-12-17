@@ -19,10 +19,9 @@ def main():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-
     '''
         The following is just for testing purposes, 
-        you can modify it to meet the requirements of your implmentation.
+        you can modify it to meet the requirements of your implementation.
     '''
 
     # Create an author
