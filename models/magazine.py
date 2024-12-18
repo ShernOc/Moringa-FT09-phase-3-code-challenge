@@ -1,5 +1,8 @@
 from database.connection import get_db_connection
 
+from models.article import Article
+from models.author import Author
+
 class Magazine:
     all = {}
     def __init__(self, id, name, category):
@@ -17,8 +20,10 @@ class Magazine:
     @id.setter
     def id(self,value):
         if isinstance(value,int):
+            self._id = value
+        else:
             TypeError("The id has to be an integer")
-        self._id = value
+        
         
     @property
     def name(self):
@@ -26,64 +31,32 @@ class Magazine:
     
     @name.setter
     def name (self,value):
-        if isinstance(value,str):
-            if 2< len(value)<16:
+        if isinstance(value,str) and 2<=len(value)<=16:
                 self._name = value
-            else: 
-                ValueError ("The name has to be greater than 2 and less than 16 characters")
         else: 
-                TypeError("The name has to be of name string")
+            ValueError ("The name has to be greater than 2 and less than 16 characters and must be a string")
+      
     @property
     def category(self):
         return self._category
         
     @category.setter    
     def category(self,value):
-        if isinstance(value,str):
-            if len(value)>0:
-                self._category = value
-            else: 
-                ValueError("The category  to be greater than 2 and less than 16 characters")
+        if isinstance(value,str) and len(value)>0:
+            self._category = value
         else: 
-                TypeError("The name has to be of name string")
+            ValueError("The category  to be greater than 0 and of string type")
                 
-    def save(self):
-        CONN= get_db_connection()
-        CURSOR = CONN.cursor()
-        sql = """
-            INSERT INTO magazines (name, category)
-            VALUES (?,?)
-        """
-        CURSOR.execute(sql, (self.name, self.category))
-        CONN.commit()
-        
-        self.id = CURSOR.lastrowid
-        type(self).all[self.id] = self
-
-    @classmethod
-    #creates a new entry in the database
-    def create(cls, name, category):
-        magazine = cls(name, category)
-        magazine.save()
-        return magazine
-    
-    def get_magazine_id(self):
-        return self.id
-    
-
     def articles(self):
-        from models.article import Article
         CONN= get_db_connection()
         CURSOR = CONN.cursor()
-        """retrieves and returns a list of articles in this magazine """
         sql = """
-            SELECT ar.*
-            FROM articles ar
-            INNER JOIN magazines m ON ar.magazine = m.id
-            WHERE m.id = ?
+            SELECT articles.id,articles.title, articles.content, articles.author_id, articles.magazine_id
+            FROM articles 
+            WHERE articles.magazine_id = ?
         """
 
-        CURSOR.execute(sql, (self.id,))
+        CURSOR.execute(sql, (self._id,))
         article_data = CURSOR.fetchall()
 
         articles = []
@@ -93,19 +66,17 @@ class Magazine:
         return articles
     
     def contributors(self):
-        from models.author import Author
         conn = get_db_connection()
         CURSOR = conn.cursor()
-        """retrieves and returns a lst of authors who wrote articles in this magazine"""
+        
         sql = """
-            SELECT DISTINCT a.*
-            FROM authors a
-            INNER JOIN articles ar ON ar.author = a.id
-            INNER JOIN magazines m on ar.magazine = m.id
-            WHERE m.id = ?
+            SELECT DISTINCT author.id, author.name
+            FROM authors 
+            JOIN articles ON author.id = articles.author_id
+            WHERE articles.magazine_id = ?
         """
 
-        CURSOR.execute(sql, (self.id,))
+        CURSOR.execute(sql, (self._id,))
         author_data = CURSOR.fetchall()
 
         authors = []
@@ -116,18 +87,14 @@ class Magazine:
     def article_titles(self):
         conn = get_db_connection()
         CURSOR = conn.cursor()
-        """
-        Retrieves and returns a list of titles (strings) of all articles written for this magazine.
-        Returns None if the magazine has no articles.
-        """
+        
         sql = """
-            SELECT ar.title
-            FROM articles ar
-            INNER JOIN magazines m ON ar.magazine = m.id
-            WHERE m.id = ?
+            SELECT article.title
+            FROM articles 
+            WHERE articles.magazine_id = ?
         """
 
-        CURSOR.execute(sql, (self.id,))
+        CURSOR.execute(sql, (self._id,))
         article_data = CURSOR.fetchall()
 
         if not article_data:
@@ -137,15 +104,14 @@ class Magazine:
         return titles
 
     def contributing_authors(self):
-        from models.author import Author
         conn = get_db_connection()
         CURSOR = conn.cursor()
 
         sql = """
-            SELECT DISTINCT a.*
-            FROM authors a
-            INNER JOIN articles ar ON ar.author = a.id
-            INNER JOIN magazines m on ar.magazine = m.id
+            SELECT DISTINCT articles.id, articles.title, articles.content, articles.author_id, articles.magazine_id
+            FROM authors_id
+            INNER JOIN articles ar ON articles.author = article_id
+            INNER JOIN magazines m on ar.magazine = mid
             WHERE m.id = ?
             GROUP BY a.id
             HAVING COUNT(ar.id) > 2
@@ -161,3 +127,13 @@ class Magazine:
         for row in author_data:
             authors.append(Author(*row)) 
         return authors
+
+#test 
+magazine1 = Magazine("Vogue", "Fashion")
+magazine2 = Magazine("How to Kill a Mocking Bird", "Lifestyle")
+
+#contributing authors 
+print([author.name for author in magazine1.contributing_authors()])
+
+
+
