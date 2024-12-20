@@ -1,14 +1,13 @@
 from database.connection import get_db_connection
 
-from models.article import Article
-from models.author import Author
-
 class Magazine:
     all = {}
     def __init__(self, id, name, category):
         self.id = id
         self.name = name
         self.category = category
+        
+        
 
     def __repr__(self):
         return f'<Magazine {self.name}>'
@@ -48,6 +47,7 @@ class Magazine:
             ValueError("The category  to be greater than 0 and of string type")
                 
     def articles(self):
+        from models.article import Article
         CONN= get_db_connection()
         CURSOR = CONN.cursor()
         sql = """
@@ -66,6 +66,7 @@ class Magazine:
         return articles
     
     def contributors(self):
+        from models.author import Author
         conn = get_db_connection()
         CURSOR = conn.cursor()
         
@@ -85,6 +86,7 @@ class Magazine:
         return authors
     
     def article_titles(self):
+        from models.author import Author
         conn = get_db_connection()
         CURSOR = conn.cursor()
         
@@ -128,12 +130,12 @@ class Magazine:
             authors.append(Author(*row)) 
         return authors
 
-#test 
-magazine1 = Magazine("Vogue", "Fashion")
-magazine2 = Magazine("How to Kill a Mocking Bird", "Lifestyle")
+# #test 
+# magazine1 = Magazine("Vogue", "Fashion", "life")
+# magazine2 = Magazine("How to Kill a Mocking Bird", "Lifestyle")
 
-#contributing authors 
-print([author.name for author in magazine1.contributing_authors()])
+# #contributing authors 
+# print([author.name for author in magazine1.contributing_authors()])
 
 
 

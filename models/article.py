@@ -1,7 +1,5 @@
 from database.connection import get_db_connection 
 
-from models.magazine import Magazine
-from models.author import Author
  
 class Article:
     def __init__(self, id, title, content, author_id, magazine_id):
@@ -29,7 +27,7 @@ class Article:
                 else: 
                     ValueError ("The title has to be between 5 and 50 characters")
     def author(self):
-        
+        from models.author import Author
         if not hasattr(self, '_author'):
             conn = get_db_connection()
             cursor = conn.cursor()
@@ -47,6 +45,7 @@ class Article:
             return self._author
                       
     def magazine(self):
+        from models.magazine import Magazine
         if not hasattr(self, '_magazine'):
             conn = get_db_connection()
             cursor = conn.cursor()

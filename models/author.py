@@ -1,7 +1,5 @@
 from database.connection import get_db_connection  
 
-from models.article import Article
-from models.magazine import Magazine
 
 class Author:
     def __init__(self, id, name):
@@ -30,6 +28,7 @@ class Author:
             #     TypeError("The name has to be of name string")
                 
     def articles(self):
+        from models.article import Article
         conn = get_db_connection()
         cursor = conn.cursor()
 
@@ -45,6 +44,7 @@ class Author:
         return [Article(row["id"], row["title"], row["content"], row["author_id"], row["magazine_id"]) for row in rows]
     
     def magazines(self):
+        from models.magazine import Magazine
         conn = get_db_connection()
         cursor = conn.cursor()
 
@@ -63,19 +63,19 @@ class Author:
         return f'<Author {self.name}>'
 
 
-#test 
+# #test 
 
-author_1 = Author("Carry Bradshaw")
-author_2 = Author("Nathaniel Hawthorne")
+# author_1 = Author("Carry Bradshaw")
+# author_2 = Author("Nathaniel Hawthorne")
 
-# magazine1 = Magazine("Vogue", "Fashion")
-# magazine2 = Magazine("How to Kill a Mocking Bird", "Lifestyle")
-
-
-
-article_1 = Article(author_1, "How to wear a tutu with style")
-article_2 = Article(author_2,"Dating life in NYC")
+# # magazine1 = Magazine("Vogue", "Fashion")
+# # magazine2 = Magazine("How to Kill a Mocking Bird", "Lifestyle")
 
 
-# getting the magazine
-print([mag.name for mag in author_1.magazines()])
+
+# article_1 = Article(author_1, "How to wear a tutu with style")
+# article_2 = Article(author_2,"Dating life in NYC")
+
+
+# # getting the magazine
+# print([mag.name for mag in author_1.magazines()])

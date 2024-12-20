@@ -33,8 +33,7 @@ def main():
     magazine_id = cursor.lastrowid # Use this to fetch the id of the newly created magazine
 
     # Create an article
-    cursor.execute('INSERT INTO articles (title, content, author_id, magazine_id) VALUES (?, ?, ?, ?)',
-                   (article_title, article_content, author_id, magazine_id))
+    cursor.execute('INSERT INTO articles (title, content, author_id, magazine_id) VALUES (?, ?, ?, ?)',(article_title, article_content, author_id, magazine_id))
 
     conn.commit()
 
@@ -53,7 +52,7 @@ def main():
     conn.close()
 
     # Display results
-    print("\nMagazines:")
+    print("Magazines:")
     for magazine in magazines:
         print(Magazine(magazine["id"], magazine["name"], magazine["category"]))
 
